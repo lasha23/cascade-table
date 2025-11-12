@@ -59,9 +59,9 @@
           <th class="col-a">A (ჩაწერადია)</th>
           <th class="col-b">B = A×1%×0.55</th>
           <th class="col-c">C = (A+B)×1%×0.58</th>
-          <th class="col-d">D = (A+B+C)×1%×0.55</th>
+          <th class="col-d">D = (A+B+C)×1%×0.57</th>
           <th class="col-e">E = (A+B+C+D)×1%×0.58</th>
-          <th class="col-f">F = (A+B+C+D+E)×1%×0.55</th>
+          <th class="col-f">F = (A+B+C+D+E)×1%×0.56</th>
           <th class="col-date">თარიღი</th>
         </tr>
       </thead>
@@ -133,9 +133,9 @@
   function calc(A, activeCount){
     const B = (activeCount >= 1) ? (A * 0.01 * 0.55) : 0;
     const C = (activeCount >= 2) ? ((A + B) * 0.01 * 0.58) : 0;
-    const D = (activeCount >= 3) ? ((A + B + C) * 0.01 * 0.55) : 0;
+    const D = (activeCount >= 3) ? ((A + B + C) * 0.01 * 0.57) : 0;
     const E = (activeCount >= 4) ? ((A + B + C + D) * 0.01 * 0.58) : 0;
-    const F = (activeCount >= 5) ? ((A + B + C + D + E) * 0.01 * 0.55) : 0;
+    const F = (activeCount >= 5) ? ((A + B + C + D + E) * 0.01 * 0.56) : 0;
     const TOTAL = A + B + C + D + E + F;
     return {A,B,C,D,E,F,TOTAL};
   }
