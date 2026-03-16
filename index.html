@@ -13,6 +13,7 @@
       --row-alt:#fff;
       --hover:#f1f5f9;
       --header:#f8fafc;
+      --panel:#f3f4f6;
     }
 
     body{
@@ -36,7 +37,22 @@
       background:#dfdfdf;
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:14px;
+    }
+
+    .section{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .section-title{
+      font-size:14px;
+      font-weight:700;
     }
 
     .rules-hint{
@@ -44,7 +60,8 @@
       color:var(--muted);
     }
 
-    .rule-row{
+    .rule-row,
+    .bonus-row{
       display:flex;
       gap:12px;
       align-items:center;
@@ -52,15 +69,18 @@
     }
 
     .rule-row input[type="date"],
-    .rule-row input[type="number"]{
+    .rule-row input[type="number"],
+    .bonus-row input[type="number"]{
       padding:8px 10px;
       border:1px solid var(--border);
       border-radius:8px;
       font-size:14px;
+      background:#fff;
     }
 
     .rule-row input[type="date"]{ width:180px; }
     .rule-row input[type="number"]{ width:140px; }
+    .bonus-row input[type="number"]{ width:160px; }
 
     .rule-row button,
     .add-btn{
@@ -122,15 +142,10 @@
       font-size:15px;
       box-sizing:border-box;
       text-align:center;
+      background:#fff;
     }
 
-    input[readonly]{
-      background:#f9fafb;
-    }
-
-    .right{
-      text-align:center;
-    }
+    .right{ text-align:center; }
 
     .date-cell{
       white-space:nowrap;
@@ -152,9 +167,30 @@
 <div class="table-wrap" role="region" aria-label="კასკადური ცხრილი — ულიმიტო" tabindex="0">
 
   <div class="controls">
-    <div id="rulesContainer"></div>
-    <button class="add-btn" id="addRuleBtn">+ დამატება</button>
-    <div class="rules-hint">თარიღი განსაზღვრავს ცხრილის დაწყების დღეს. ბონუსი ემატება მხოლოდ 5, 15 და 25 რიცხვში.</div>
+
+    <div class="section">
+      <div class="section-title">თარიღზე დაფუძნებული წესები</div>
+      <div id="rulesContainer"></div>
+      <button class="add-btn" id="addRuleBtn">+ დამატება</button>
+      <div class="rules-hint">თარიღი განსაზღვრავს ცხრილის დაწყების დღეს და იმ დღიდან რამდენი სვეტი იყოს აქტიური.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">ბონუსი</div>
+      <div class="bonus-row">
+        <label>
+          <input type="checkbox" id="bonusEnabled">
+          ბონუსის ჩართვა
+        </label>
+
+        <label>
+          თანხა:&nbsp;
+          <input type="number" id="bonusAmount" min="0" step="0.01" value="0">
+        </label>
+      </div>
+      <div class="rules-hint">თუ ბონუსი ჩართულია, თანხა დაემატება მხოლოდ 5, 15 და 25 რიცხვში.</div>
+    </div>
+
   </div>
 
   <div class="scroll-area" id="scroller">
@@ -180,6 +216,8 @@
   const scroller = document.getElementById('scroller');
   const rulesContainer = document.getElementById('rulesContainer');
   const addRuleBtn = document.getElementById('addRuleBtn');
+  const bonusEnabledEl = document.getElementById('bonusEnabled');
+  const bonusAmountEl = document.getElementById('bonusAmount');
 
   // --- Formatting & dates ---
   const fmt = n => Number(n).toLocaleString('ka-GE', {
@@ -213,7 +251,6 @@
       row.innerHTML = `
         <label>თარიღი (დან):&nbsp;<input type="date" value="${r.date}" data-idx="${idx}" data-field="date"></label>
         <label>სვეტები (0–5):&nbsp;<input type="number" min="0" max="5" step="1" value="${r.count}" data-idx="${idx}" data-field="count"></label>
-        <label>ბონუსი:&nbsp;<input type="number" min="0" step="0.01" value="${r.bonus ?? 0}" data-idx="${idx}" data-field="bonus"></label>
         <button data-idx="${idx}" data-action="delete">წაშლა</button>
       `;
       rulesContainer.appendChild(row);
@@ -234,16 +271,13 @@
       const o = byIdx[k];
       const count = Math.max(0, Math.min(5, parseInt(o.count || 0, 10)));
       const date = o.date || dateStr(new Date());
-      const bonus = Math.max(0, parseFloat(o.bonus || 0));
-
-      return { date, count, bonus };
+      return { date, count };
     });
 
     arr.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
     return arr;
   }
 
-  // ცხრილის დაწყების თარიღი = პირველი წესის თარიღი
   function getStartDate(){
     const rules = readRulesFromDOM();
     if (rules.length === 0) return parseYMD(dateStr(new Date()));
@@ -261,19 +295,17 @@
     return active;
   }
 
-  function getBonusForDate(dt){
-    const rules = readRulesFromDOM();
-    if (rules.length === 0) return 0;
-
-    let activeBonus = 0;
-    for (const r of rules){
-      if (dt >= parseYMD(r.date)) activeBonus = r.bonus || 0;
-    }
-
+  // --- Bonus ---
+  function isBonusDay(dt){
     const day = dt.getDate();
-    if (day === 5 || day === 15 || day === 25) return activeBonus;
+    return day === 5 || day === 15 || day === 25;
+  }
 
-    return 0;
+  function getBonusForDate(dt){
+    const enabled = bonusEnabledEl.checked;
+    const amount = Math.max(0, parseFloat(bonusAmountEl.value) || 0);
+    if (!enabled) return 0;
+    return isBonusDay(dt) ? amount : 0;
   }
 
   // --- Calculations ---
@@ -292,6 +324,15 @@
   const CHUNK = 100;
   let lastTotal = 0;
 
+  function setRowValues(i, A, result){
+    document.getElementById(`a-${i}`).value = Number(A).toFixed(2);
+    document.getElementById(`b-${i}`).textContent = fmt(result.B);
+    document.getElementById(`c-${i}`).textContent = fmt(result.C);
+    document.getElementById(`d-${i}`).textContent = fmt(result.D);
+    document.getElementById(`e-${i}`).textContent = fmt(result.E);
+    document.getElementById(`f-${i}`).textContent = fmt(result.F);
+  }
+
   function createRow(i, Avalue){
     const tr = document.createElement('tr');
     const dt = dateAddDays(getStartDate(), i);
@@ -308,20 +349,11 @@
 
     tbody.appendChild(tr);
 
-    const bonus = getBonusForDate(dt);
-    const finalA = (parseFloat(Avalue) || 0) + bonus;
-
-    document.getElementById(`a-${i}`).value = finalA.toFixed(2);
-
+    const finalA = (parseFloat(Avalue) || 0) + getBonusForDate(dt);
     const activeCount = getActiveColsForDate(dt);
     const r = calc(finalA, activeCount);
 
-    document.getElementById(`b-${i}`).textContent = fmt(r.B);
-    document.getElementById(`c-${i}`).textContent = fmt(r.C);
-    document.getElementById(`d-${i}`).textContent = fmt(r.D);
-    document.getElementById(`e-${i}`).textContent = fmt(r.E);
-    document.getElementById(`f-${i}`).textContent = fmt(r.F);
-
+    setRowValues(i, finalA, r);
     lastTotal = r.TOTAL;
   }
 
@@ -339,18 +371,21 @@
     }
   }
 
-  function recalcFrom(startIndex){
+  // userTypedStart = true => startIndex რიგზე ჩაწერილი A ხელუხლებელი დარჩება
+  function recalcFrom(startIndex, userTypedStart = false){
     if (loaded === 0) return;
 
-    const dtStartText = document.querySelector(`#rows tr:nth-child(${startIndex + 1}) .date-cell`).textContent;
-    const dtStart = parseYMD(dtStartText);
+    const startDateText = document.querySelector(`#rows tr:nth-child(${startIndex + 1}) .date-cell`).textContent;
+    const startDate = parseYMD(startDateText);
 
-    let Ai = parseFloat(document.getElementById(`a-${startIndex}`).value) || 0;
-    Ai += getBonusForDate(dtStart);
+    let startA = parseFloat(document.getElementById(`a-${startIndex}`).value) || 0;
 
-    document.getElementById(`a-${startIndex}`).value = Ai.toFixed(2);
+    if (!userTypedStart){
+      startA += getBonusForDate(startDate);
+      document.getElementById(`a-${startIndex}`).value = startA.toFixed(2);
+    }
 
-    let r = calc(Ai, getActiveColsForDate(dtStart));
+    let r = calc(startA, getActiveColsForDate(startDate));
 
     document.getElementById(`b-${startIndex}`).textContent = fmt(r.B);
     document.getElementById(`c-${startIndex}`).textContent = fmt(r.C);
@@ -364,16 +399,10 @@
 
       let nextA = r.TOTAL + getBonusForDate(dt);
 
-      const aEl = document.getElementById(`a-${j}`);
-      aEl.value = nextA.toFixed(2);
+      const nextResult = calc(nextA, getActiveColsForDate(dt));
+      setRowValues(j, nextA, nextResult);
 
-      r = calc(nextA, getActiveColsForDate(dt));
-
-      document.getElementById(`b-${j}`).textContent = fmt(r.B);
-      document.getElementById(`c-${j}`).textContent = fmt(r.C);
-      document.getElementById(`d-${j}`).textContent = fmt(r.D);
-      document.getElementById(`e-${j}`).textContent = fmt(r.E);
-      document.getElementById(`f-${j}`).textContent = fmt(r.F);
+      r = nextResult;
     }
 
     lastTotal = r.TOTAL;
@@ -381,7 +410,28 @@
 
   function recalcAllFromTop(){
     if (loaded === 0) return;
-    recalcFrom(0);
+
+    const firstDateText = document.querySelector(`#rows tr:nth-child(1) .date-cell`).textContent;
+    const firstDate = parseYMD(firstDateText);
+
+    let firstA = 500 + getBonusForDate(firstDate);
+    const firstResult = calc(firstA, getActiveColsForDate(firstDate));
+    setRowValues(0, firstA, firstResult);
+
+    let r = firstResult;
+
+    for (let j = 1; j < loaded; j++){
+      const dtText = document.querySelector(`#rows tr:nth-child(${j + 1}) .date-cell`).textContent;
+      const dt = parseYMD(dtText);
+
+      let nextA = r.TOTAL + getBonusForDate(dt);
+      const nextResult = calc(nextA, getActiveColsForDate(dt));
+
+      setRowValues(j, nextA, nextResult);
+      r = nextResult;
+    }
+
+    lastTotal = r.TOTAL;
   }
 
   function rebuildFromRules(){
@@ -401,7 +451,7 @@
   tbody.addEventListener('input', (e) => {
     if (e.target && /^a-\d+$/.test(e.target.id)){
       const idx = parseInt(e.target.id.split('-')[1], 10);
-      recalcFrom(idx);
+      recalcFrom(idx, true);
     }
   });
 
@@ -420,15 +470,18 @@
 
   addRuleBtn.addEventListener('click', () => {
     const cur = readRulesFromDOM();
-    cur.push({ date: dateStr(new Date()), count: 0, bonus: 0 });
+    cur.push({ date: dateStr(new Date()), count: 0 });
     cur.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
     renderRules(cur);
     rebuildFromRules();
   });
 
+  bonusEnabledEl.addEventListener('change', rebuildFromRules);
+  bonusAmountEl.addEventListener('input', rebuildFromRules);
+
   // --- Initial boot ---
   const initialRule = [
-    { date: dateStr(new Date()), count: 2, bonus: 0 }
+    { date: dateStr(new Date()), count: 2 }
   ];
 
   renderRules(initialRule);
