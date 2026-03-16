@@ -5,55 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>კასკადური ცხრილი — თარიღზე დაფუძნებული სვეტები</title>
   <style>
-    :root { --border:#e5e7eb; --text:#111827; --muted:#6b7280;
-            --row:#dfdfdf; --row-alt:#fff; --hover:#f1f5f9; --header:#f8fafc; }
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--text);margin:24px}
-    .table-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);max-width:1320px;margin:0 auto}
-    .table-title{padding:12px 16px;font-weight:600;background:linear-gradient(to bottom,#fff,#f9fafb);border-bottom:1px solid var(--border)}
-    .controls{padding:12px 16px;border-bottom:1px solid var(--border);background:#dfdfdf;display:flex;flex-direction:column;gap:12px}
-    .rules-hint{font-size:12px;color:var(--muted)}
-    .rule-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .rule-row input[type="date"], .rule-row input[type="number"]{
-      padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:14px
+    :root {
+      --border:#e5e7eb;
+      --text:#111827;
+      --muted:#6b7280;
+      --row:#dfdfdf;
+      --row-alt:#fff;
+      --hover:#f1f5f9;
+      --header:#f8fafc;
     }
-    .rule-row input[type="date"]{width:180px}
-    .rule-row input[type="number"]{width:140px}
-    .rule-row button{padding:8px 12px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer}
-    .add-btn{align-self:flex-start;padding:8px 12px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer}
 
-    .bonus-row{
+    body{
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--text);
+      margin:24px;
+    }
+
+    .table-wrap{
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 1px 4px rgba(0,0,0,.04);
+      max-width:1320px;
+      margin:0 auto;
+    }
+
+    .controls{
+      padding:12px 16px;
+      border-bottom:1px solid var(--border);
+      background:#dfdfdf;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .rules-hint{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .rule-row{
       display:flex;
       gap:12px;
       align-items:center;
       flex-wrap:wrap;
-      padding-top:4px;
     }
-    .bonus-row input[type="number"]{
-      width:160px;
+
+    .rule-row input[type="date"],
+    .rule-row input[type="number"]{
       padding:8px 10px;
       border:1px solid var(--border);
       border-radius:8px;
       font-size:14px;
     }
 
-    .scroll-area{max-height:70vh;overflow:auto}
-    table.data{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed}
-    thead th{position:sticky;top:0;background:var(--header);text-align:left;font-size:14px;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--border)}
-    tbody td{padding:12px;font-size:15px;border-bottom:1px solid var(--border);background:var(--row)}
-    tbody tr:nth-child(even) td{background:var(--row-alt)}
-    tbody tr:hover td{background:var(--hover)}
-    input[type="number"]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:15px;box-sizing:border-box}
-    input[readonly]{background:#f9fafb}
-    .right{text-align:right}
-    .date-cell{white-space:nowrap;font-variant-numeric:tabular-nums}
+    .rule-row input[type="date"]{ width:180px; }
+    .rule-row input[type="number"]{ width:140px; }
 
-    .col-a{width:18ch} .col-b{width:16ch} .col-c{width:18ch} .col-d{width:18ch} .col-e{width:18ch} .col-f{width:18ch} .col-date{width:18ch}
+    .rule-row button,
+    .add-btn{
+      padding:8px 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:8px;
+      cursor:pointer;
+    }
 
-    thead th { text-align: center; }
-    tbody td { text-align: center; }
-    tbody td.right { text-align: center; }
-    input[type="number"] { text-align: center; }
-    .date-cell { text-align: center; }
+    .add-btn{
+      align-self:flex-start;
+    }
+
+    .scroll-area{
+      max-height:70vh;
+      overflow:auto;
+    }
+
+    table.data{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      table-layout:fixed;
+    }
+
+    thead th{
+      position:sticky;
+      top:0;
+      background:var(--header);
+      text-align:center;
+      font-size:14px;
+      color:var(--muted);
+      padding:10px 12px;
+      border-bottom:1px solid var(--border);
+    }
+
+    tbody td{
+      padding:12px;
+      font-size:15px;
+      border-bottom:1px solid var(--border);
+      background:var(--row);
+      text-align:center;
+    }
+
+    tbody tr:nth-child(even) td{
+      background:var(--row-alt);
+    }
+
+    tbody tr:hover td{
+      background:var(--hover);
+    }
+
+    input[type="number"]{
+      width:100%;
+      padding:8px 10px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      font-size:15px;
+      box-sizing:border-box;
+      text-align:center;
+    }
+
+    input[readonly]{
+      background:#f9fafb;
+    }
+
+    .right{
+      text-align:center;
+    }
+
+    .date-cell{
+      white-space:nowrap;
+      font-variant-numeric:tabular-nums;
+      text-align:center;
+    }
+
+    .col-a{width:18ch}
+    .col-b{width:16ch}
+    .col-c{width:18ch}
+    .col-d{width:18ch}
+    .col-e{width:18ch}
+    .col-f{width:18ch}
+    .col-date{width:18ch}
   </style>
 </head>
 <body>
@@ -63,23 +154,7 @@
   <div class="controls">
     <div id="rulesContainer"></div>
     <button class="add-btn" id="addRuleBtn">+ დამატება</button>
-
-    <!-- ბონუსის ბლოკი -->
-    <div class="bonus-row">
-      <label>
-        <input type="checkbox" id="bonusEnabled">
-        ბონუსის დამატება
-      </label>
-
-      <label>
-        თანხა:&nbsp;
-        <input type="number" id="bonusAmount" min="0" step="0.01" value="0">
-      </label>
-
-      <div class="rules-hint">თუ ჩართულია, ყოველ 5, 15 და 25 რიცხვში ამატებს მითითებულ თანხას.</div>
-    </div>
-
-    <div class="rules-hint">თარიღი განსაზღვრავს ცხრილის დაწყების დღეს.</div>
+    <div class="rules-hint">თარიღი განსაზღვრავს ცხრილის დაწყების დღეს. ბონუსი ემატება მხოლოდ 5, 15 და 25 რიცხვში.</div>
   </div>
 
   <div class="scroll-area" id="scroller">
@@ -106,37 +181,39 @@
   const rulesContainer = document.getElementById('rulesContainer');
   const addRuleBtn = document.getElementById('addRuleBtn');
 
-  const bonusEnabledEl = document.getElementById('bonusEnabled');
-  const bonusAmountEl = document.getElementById('bonusAmount');
-
   // --- Formatting & dates ---
-  const fmt = n => Number(n).toLocaleString('ka-GE',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const dateAddDays = (d,days)=>{ const x=new Date(d); x.setDate(x.getDate()+days); x.setHours(0,0,0,0); return x; };
+  const fmt = n => Number(n).toLocaleString('ka-GE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  const dateAddDays = (d, days) => {
+    const x = new Date(d);
+    x.setDate(x.getDate() + days);
+    x.setHours(0,0,0,0);
+    return x;
+  };
+
   const dateStr = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const parseYMD = (s)=>{ const [y,m,d]=s.split('-').map(Number); const dt=new Date(y,(m-1),d); dt.setHours(0,0,0,0); return dt; };
 
-  // --- Bonus helpers ---
-  function isBonusDay(dt){
-    const day = dt.getDate();
-    return day === 5 || day === 15 || day === 25;
-  }
-
-  function getBonusAmountForDate(dt){
-    const enabled = bonusEnabledEl.checked;
-    const amount = parseFloat(bonusAmountEl.value) || 0;
-    if (enabled && isBonusDay(dt)) return amount;
-    return 0;
-  }
+  const parseYMD = s => {
+    const [y, m, d] = s.split('-').map(Number);
+    const dt = new Date(y, (m - 1), d);
+    dt.setHours(0,0,0,0);
+    return dt;
+  };
 
   // --- Rules UI ---
   function renderRules(rules){
     rulesContainer.innerHTML = '';
-    rules.forEach((r,idx)=>{
+
+    rules.forEach((r, idx) => {
       const row = document.createElement('div');
       row.className = 'rule-row';
       row.innerHTML = `
         <label>თარიღი (დან):&nbsp;<input type="date" value="${r.date}" data-idx="${idx}" data-field="date"></label>
         <label>სვეტები (0–5):&nbsp;<input type="number" min="0" max="5" step="1" value="${r.count}" data-idx="${idx}" data-field="count"></label>
+        <label>ბონუსი:&nbsp;<input type="number" min="0" step="0.01" value="${r.bonus ?? 0}" data-idx="${idx}" data-field="bonus"></label>
         <button data-idx="${idx}" data-action="delete">წაშლა</button>
       `;
       rulesContainer.appendChild(row);
@@ -146,21 +223,27 @@
   function readRulesFromDOM(){
     const inputs = rulesContainer.querySelectorAll('input');
     const byIdx = {};
-    inputs.forEach(inp=>{
+
+    inputs.forEach(inp => {
       const idx = Number(inp.dataset.idx);
       byIdx[idx] = byIdx[idx] || {};
       byIdx[idx][inp.dataset.field] = inp.value;
     });
-    let arr = Object.keys(byIdx).map(k=>{
+
+    let arr = Object.keys(byIdx).map(k => {
       const o = byIdx[k];
-      let count = Math.max(0, Math.min(5, parseInt(o.count||0,10)));
-      let date = o.date || dateStr(new Date());
-      return {date, count};
+      const count = Math.max(0, Math.min(5, parseInt(o.count || 0, 10)));
+      const date = o.date || dateStr(new Date());
+      const bonus = Math.max(0, parseFloat(o.bonus || 0));
+
+      return { date, count, bonus };
     });
-    arr.sort((a,b)=> parseYMD(a.date) - parseYMD(b.date));
+
+    arr.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
     return arr;
   }
 
+  // ცხრილის დაწყების თარიღი = პირველი წესის თარიღი
   function getStartDate(){
     const rules = readRulesFromDOM();
     if (rules.length === 0) return parseYMD(dateStr(new Date()));
@@ -170,11 +253,27 @@
   function getActiveColsForDate(dt){
     const rules = readRulesFromDOM();
     if (rules.length === 0) return 0;
+
     let active = 0;
     for (const r of rules){
       if (dt >= parseYMD(r.date)) active = r.count;
     }
     return active;
+  }
+
+  function getBonusForDate(dt){
+    const rules = readRulesFromDOM();
+    if (rules.length === 0) return 0;
+
+    let activeBonus = 0;
+    for (const r of rules){
+      if (dt >= parseYMD(r.date)) activeBonus = r.bonus || 0;
+    }
+
+    const day = dt.getDate();
+    if (day === 5 || day === 15 || day === 25) return activeBonus;
+
+    return 0;
   }
 
   // --- Calculations ---
@@ -185,7 +284,7 @@
     const E = (activeCount >= 4) ? ((A + B + C + D) * 0.01 * 0.58) : 0;
     const F = (activeCount >= 5) ? ((A + B + C + D + E) * 0.01 * 0.56) : 0;
     const TOTAL = A + B + C + D + E + F;
-    return {A,B,C,D,E,F,TOTAL};
+    return { A, B, C, D, E, F, TOTAL };
   }
 
   // --- Table state ---
@@ -197,9 +296,6 @@
     const tr = document.createElement('tr');
     const dt = dateAddDays(getStartDate(), i);
 
-    let finalA = Number(Avalue) || 0;
-    finalA += getBonusAmountForDate(dt);
-
     tr.innerHTML = `
       <td><input id="a-${i}" type="number" step="0.01" min="0" placeholder="0.00" /></td>
       <td class="right" id="b-${i}">0.00</td>
@@ -209,12 +305,17 @@
       <td class="right" id="f-${i}">0.00</td>
       <td class="date-cell">${dateStr(dt)}</td>
     `;
+
     tbody.appendChild(tr);
+
+    const bonus = getBonusForDate(dt);
+    const finalA = (parseFloat(Avalue) || 0) + bonus;
 
     document.getElementById(`a-${i}`).value = finalA.toFixed(2);
 
     const activeCount = getActiveColsForDate(dt);
     const r = calc(finalA, activeCount);
+
     document.getElementById(`b-${i}`).textContent = fmt(r.B);
     document.getElementById(`c-${i}`).textContent = fmt(r.C);
     document.getElementById(`d-${i}`).textContent = fmt(r.D);
@@ -225,8 +326,10 @@
   }
 
   function loadMore(){
-    const start = loaded, end = start + CHUNK;
-    for (let i=start; i<end; i++){
+    const start = loaded;
+    const end = start + CHUNK;
+
+    for (let i = start; i < end; i++){
       if (i === 0){
         createRow(0, 500);
       } else {
@@ -239,14 +342,11 @@
   function recalcFrom(startIndex){
     if (loaded === 0) return;
 
-    const dtStartText = document.querySelector(`#rows tr:nth-child(${startIndex+1}) .date-cell`).textContent;
+    const dtStartText = document.querySelector(`#rows tr:nth-child(${startIndex + 1}) .date-cell`).textContent;
     const dtStart = parseYMD(dtStartText);
 
     let Ai = parseFloat(document.getElementById(`a-${startIndex}`).value) || 0;
-
-    // სტარტ რიგზე ბონუსი ემატება მხოლოდ მაშინ, თუ შესაბამისი დღეა
-    const bonusStart = getBonusAmountForDate(dtStart);
-    Ai += bonusStart;
+    Ai += getBonusForDate(dtStart);
 
     document.getElementById(`a-${startIndex}`).value = Ai.toFixed(2);
 
@@ -258,12 +358,11 @@
     document.getElementById(`e-${startIndex}`).textContent = fmt(r.E);
     document.getElementById(`f-${startIndex}`).textContent = fmt(r.F);
 
-    for (let j=startIndex+1; j<loaded; j++){
-      const dtText = document.querySelector(`#rows tr:nth-child(${j+1}) .date-cell`).textContent;
+    for (let j = startIndex + 1; j < loaded; j++){
+      const dtText = document.querySelector(`#rows tr:nth-child(${j + 1}) .date-cell`).textContent;
       const dt = parseYMD(dtText);
 
-      let nextA = r.TOTAL;
-      nextA += getBonusAmountForDate(dt);
+      let nextA = r.TOTAL + getBonusForDate(dt);
 
       const aEl = document.getElementById(`a-${j}`);
       aEl.value = nextA.toFixed(2);
@@ -294,12 +393,12 @@
   }
 
   // --- Events ---
-  scroller.addEventListener('scroll', ()=>{
+  scroller.addEventListener('scroll', () => {
     const nearBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 200;
-    if (nearBottom){ loadMore(); }
+    if (nearBottom) loadMore();
   });
 
-  tbody.addEventListener('input', (e)=>{
+  tbody.addEventListener('input', (e) => {
     if (e.target && /^a-\d+$/.test(e.target.id)){
       const idx = parseInt(e.target.id.split('-')[1], 10);
       recalcFrom(idx);
@@ -308,31 +407,30 @@
 
   rulesContainer.addEventListener('input', rebuildFromRules);
 
-  rulesContainer.addEventListener('click', (e)=>{
+  rulesContainer.addEventListener('click', (e) => {
     const act = e.target.dataset.action;
     if (act === 'delete'){
       const idx = Number(e.target.dataset.idx);
       const cur = readRulesFromDOM();
-      cur.splice(idx,1);
+      cur.splice(idx, 1);
       renderRules(cur);
       rebuildFromRules();
     }
   });
 
-  addRuleBtn.addEventListener('click', ()=>{
+  addRuleBtn.addEventListener('click', () => {
     const cur = readRulesFromDOM();
-    cur.push({date: dateStr(new Date()), count: 0});
-    cur.sort((a,b)=> parseYMD(a.date) - parseYMD(b.date));
+    cur.push({ date: dateStr(new Date()), count: 0, bonus: 0 });
+    cur.sort((a, b) => parseYMD(a.date) - parseYMD(b.date));
     renderRules(cur);
     rebuildFromRules();
   });
 
-  // ბონუსის ცვლილება -> თავიდან გადათვლა
-  bonusEnabledEl.addEventListener('change', rebuildFromRules);
-  bonusAmountEl.addEventListener('input', rebuildFromRules);
-
   // --- Initial boot ---
-  const initialRule = [{ date: dateStr(new Date()), count: 2 }];
+  const initialRule = [
+    { date: dateStr(new Date()), count: 2, bonus: 0 }
+  ];
+
   renderRules(initialRule);
   loadMore();
   recalcAllFromTop();
