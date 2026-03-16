@@ -219,6 +219,8 @@
   const bonusEnabledEl = document.getElementById('bonusEnabled');
   const bonusAmountEl = document.getElementById('bonusAmount');
 
+  const SEED_A = 500;
+
   // --- Formatting & dates ---
   const fmt = n => Number(n).toLocaleString('ka-GE', {
     minimumFractionDigits: 2,
@@ -363,7 +365,7 @@
 
     for (let i = start; i < end; i++){
       if (i === 0){
-        createRow(0, 500);
+        createRow(0, SEED_A);
       } else {
         createRow(i, lastTotal);
       }
@@ -371,14 +373,14 @@
     }
   }
 
-  // userTypedStart = true => startIndex რიგზე ჩაწერილი A ხელუხლებელი დარჩება
   function recalcFrom(startIndex, userTypedStart = false){
     if (loaded === 0) return;
 
     const startDateText = document.querySelector(`#rows tr:nth-child(${startIndex + 1}) .date-cell`).textContent;
     const startDate = parseYMD(startDateText);
 
-    let startA = parseFloat(document.getElementById(`a-${startIndex}`).value) || 0;
+    let startA = parseFloat(document.getElementById(`a-${startIndex}`).value);
+    if (isNaN(startA)) startA = 0;
 
     if (!userTypedStart){
       startA += getBonusForDate(startDate);
@@ -397,11 +399,10 @@
       const dtText = document.querySelector(`#rows tr:nth-child(${j + 1}) .date-cell`).textContent;
       const dt = parseYMD(dtText);
 
-      let nextA = r.TOTAL + getBonusForDate(dt);
-
+      const nextA = r.TOTAL + getBonusForDate(dt);
       const nextResult = calc(nextA, getActiveColsForDate(dt));
-      setRowValues(j, nextA, nextResult);
 
+      setRowValues(j, nextA, nextResult);
       r = nextResult;
     }
 
@@ -414,7 +415,7 @@
     const firstDateText = document.querySelector(`#rows tr:nth-child(1) .date-cell`).textContent;
     const firstDate = parseYMD(firstDateText);
 
-    let firstA = 500 + getBonusForDate(firstDate);
+    let firstA = SEED_A + getBonusForDate(firstDate);
     const firstResult = calc(firstA, getActiveColsForDate(firstDate));
     setRowValues(0, firstA, firstResult);
 
@@ -424,7 +425,7 @@
       const dtText = document.querySelector(`#rows tr:nth-child(${j + 1}) .date-cell`).textContent;
       const dt = parseYMD(dtText);
 
-      let nextA = r.TOTAL + getBonusForDate(dt);
+      const nextA = r.TOTAL + getBonusForDate(dt);
       const nextResult = calc(nextA, getActiveColsForDate(dt));
 
       setRowValues(j, nextA, nextResult);
@@ -442,16 +443,45 @@
     recalcAllFromTop();
   }
 
+  function commitUserValue(inputEl){
+    if (!inputEl || !/^a-\d+$/.test(inputEl.id)) return;
+    const idx = parseInt(inputEl.id.split('-')[1], 10);
+    recalcFrom(idx, true);
+  }
+
   // --- Events ---
   scroller.addEventListener('scroll', () => {
     const nearBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 200;
     if (nearBottom) loadMore();
   });
 
-  tbody.addEventListener('input', (e) => {
-    if (e.target && /^a-\d+$/.test(e.target.id)){
-      const idx = parseInt(e.target.id.split('-')[1], 10);
-      recalcFrom(idx, true);
+  // ფოკუსისას არსებული რიცხვი მთლიანად მონიშნე
+  tbody.addEventListener('focusin', (e) => {
+    if (e.target && /^a-\d+$/.test(e.target.id)) {
+      setTimeout(() => e.target.select(), 0);
+    }
+  });
+
+  // Enter-ზე დაადასტურე
+  tbody.addEventListener('keydown', (e) => {
+    if (e.target && /^a-\d+$/.test(e.target.id) && e.key === 'Enter') {
+      e.preventDefault();
+      commitUserValue(e.target);
+      e.target.blur();
+    }
+  });
+
+  // როცა ველი დატოვე
+  tbody.addEventListener('change', (e) => {
+    if (e.target && /^a-\d+$/.test(e.target.id)) {
+      commitUserValue(e.target);
+    }
+  });
+
+  // დამატებით blur-ზე
+  tbody.addEventListener('focusout', (e) => {
+    if (e.target && /^a-\d+$/.test(e.target.id)) {
+      commitUserValue(e.target);
     }
   });
 
