@@ -315,7 +315,7 @@
     const B = (activeCount >= 1) ? (A * 0.01 * 0.55) : 0;
     const C = (activeCount >= 2) ? ((A + B) * 0.01 * 0.53) : 0;
     const D = (activeCount >= 3) ? ((A + B + C) * 0.01 * 0.54) : 0;
-    const E = (activeCount >= 4) ? ((A + B + C + D) * 0.01 * 0.53.5) : 0;
+    const E = (activeCount >= 4) ? ((A + B + C + D) * 0.01 * 0.535) : 0;
     const F = (activeCount >= 5) ? ((A + B + C + D + E) * 0.01 * 0.54) : 0;
     const TOTAL = A + B + C + D + E + F;
     return { A, B, C, D, E, F, TOTAL };
